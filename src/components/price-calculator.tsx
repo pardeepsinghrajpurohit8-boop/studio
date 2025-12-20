@@ -1,9 +1,11 @@
+
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { Calculator, ShoppingCart, DollarSign, Save, Trash2, History } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Calculator, ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { speakPrice } from "@/ai/flows/tts-flow";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,17 +49,54 @@ export function PriceCalculator() {
   const [total, setTotal] = useState<number>(0);
   const [history, setHistory] = useState<Calculation[]>([]);
   const { toast } = useToast();
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
     const numQuantity = parseFloat(quantity);
     const numPrice = parseFloat(price);
     
+    let newTotal = 0;
     if (!isNaN(numQuantity) && !isNaN(numPrice) && numQuantity >= 0 && numPrice >= 0) {
-      setTotal(numQuantity * numPrice);
-    } else {
-      setTotal(0);
+      newTotal = numQuantity * numPrice;
     }
+    
+    setTotal(newTotal);
+
+    if (newTotal > 0) {
+        handleSpeak(newTotal);
+    }
+    
   }, [quantity, price]);
+
+  const handleSpeak = useCallback(async (amount: number) => {
+    if (isSpeaking) return;
+    setIsSpeaking(true);
+    try {
+        const textToSpeak = `कुल कीमत ${amount.toFixed(2)} रुपये है`;
+        const result = await speakPrice(textToSpeak);
+        if (result && result.media) {
+            const audioObj = new Audio(result.media);
+            setAudio(audioObj);
+            audioObj.play();
+            audioObj.onended = () => setIsSpeaking(false);
+        } else {
+            setIsSpeaking(false);
+        }
+    } catch (error) {
+        console.error("Error generating speech:", error);
+        setIsSpeaking(false);
+    }
+  }, [isSpeaking]);
+  
+  const replayAudio = () => {
+    if (audio) {
+      audio.play();
+    } else if (total > 0) {
+      handleSpeak(total);
+    }
+  };
+
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.select();
@@ -163,7 +202,7 @@ export function PriceCalculator() {
               />
             </div>
           </div>
-          <div className={`text-center py-6 px-4 ${neumorphicTotalContainer}`}>
+          <div className={`text-center py-6 px-4 ${neumorphicTotalContainer} relative`}>
             <p className="text-base font-body text-muted-foreground uppercase tracking-widest">Total Price</p>
             <p 
               className="text-5xl font-bold font-headline text-primary tracking-tight transition-all duration-300 mt-2"
@@ -171,6 +210,16 @@ export function PriceCalculator() {
             >
               {formatCurrency(total)}
             </p>
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={replayAudio}
+                className="absolute top-2 right-2 text-muted-foreground hover:text-primary"
+                aria-label="Repeat price"
+                disabled={isSpeaking || total === 0}
+            >
+                {isSpeaking ? <Loader className="animate-spin" /> : <Volume2 />}
+            </Button>
           </div>
           <Button onClick={handleSave} size="lg" className="w-full h-14 text-lg font-bold">
             <Save className="mr-2 h-5 w-5"/>
