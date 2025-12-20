@@ -20,6 +20,27 @@ interface Calculation {
   total: number;
 }
 
+const JeansIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 3v3" />
+      <path d="M12 9v12" />
+      <path d="M15 3.5c0 .8-.7 1.5-1.5 1.5h-3A1.5 1.5 0 0 1 9 3.5" />
+      <path d="M15 21c0-1.7-1.3-3-3-3s-3 1.3-3 3" />
+      <path d="M9 9H5.5a2.5 2.5 0 0 0 0 5H9" />
+      <path d="M15 9h3.5a2.5 2.5 0 1 1 0 5H15" />
+    </svg>
+);
+
+
 export function PriceCalculator() {
   const [quantity, setQuantity] = useState<string>("");
   const [price, setPrice] = useState<string>("");
@@ -125,7 +146,7 @@ export function PriceCalculator() {
             </div>
             <div className="grid w-full items-center gap-3">
               <Label htmlFor="price" className="font-semibold text-base flex items-center gap-2 text-foreground/80">
-                  <DollarSign className="h-5 w-5 text-primary" />
+                  <JeansIcon className="h-5 w-5 text-primary" />
                   Rate (Price per item)
               </Label>
               <Input
