@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent } from "lucide-react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent, FileDown, Printer } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
 import { numberToWords } from "@/ai/flows/number-to-words-flow";
@@ -16,6 +16,9 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 
 interface Calculation {
   id: string;
@@ -43,6 +46,95 @@ const JeansIcon = (props: React.SVGProps<SVGSVGElement>) => (
       <path d="M15 9h3.5a2.5 2.5 0 1 1 0 5H15" />
     </svg>
 );
+
+const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calculation[], totalQuantity: number, formatCurrency: (value: number) => string }) => {
+    const billRef = useRef<HTMLDivElement>(null);
+
+    const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
+    const gstAmount = subTotal * 0.025;
+    const grandTotal = subTotal + gstAmount;
+
+    const handlePrint = () => {
+        const printContent = billRef.current;
+        if (printContent) {
+            const printWindow = window.open('', '', 'height=600,width=800');
+            if (printWindow) {
+                printWindow.document.write('<html><head><title>Bill</title>');
+                // A simple CSS for printing
+                printWindow.document.write(`
+                    <style>
+                        body { font-family: sans-serif; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .text-right { text-align: right; }
+                        .font-bold { font-weight: bold; }
+                        .mt-4 { margin-top: 1rem; }
+                    </style>
+                `);
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(printContent.innerHTML);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+            }
+        }
+    };
+
+    return (
+        <>
+            <div ref={billRef} className="text-sm">
+                <div className="grid gap-2">
+                    <p><strong>Bill Date:</strong> {new Date().toLocaleDateString()}</p>
+                    <p><strong>Total Items:</strong> {history.length}</p>
+                    <p><strong>Total Quantity:</strong> {totalQuantity}</p>
+                </div>
+                <Separator className="my-4" />
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>#</TableHead>
+                            <TableHead>Quantity</TableHead>
+                            <TableHead>Rate</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {history.map((item, index) => (
+                            <TableRow key={item.id}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{item.quantity}</TableCell>
+                                <TableCell>{formatCurrency(item.price)}</TableCell>
+                                <TableCell className="text-right">{formatCurrency(item.total)}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TableCell colSpan={3} className="text-right font-bold">Subtotal</TableCell>
+                            <TableCell className="text-right font-bold">{formatCurrency(subTotal)}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell colSpan={3} className="text-right font-bold">GST (2.5%)</TableCell>
+                            <TableCell className="text-right font-bold">{formatCurrency(gstAmount)}</TableCell>
+                        </TableRow>
+                        <TableRow className="text-lg">
+                            <TableCell colSpan={3} className="text-right font-bold">Grand Total</TableCell>
+                            <TableCell className="text-right font-bold">{formatCurrency(grandTotal)}</TableCell>
+                        </TableRow>
+                    </TableFooter>
+                </Table>
+            </div>
+            <DialogFooter className="mt-6">
+                <Button onClick={handlePrint} className="w-full sm:w-auto">
+                    <Printer className="mr-2 h-4 w-4" />
+                    Print / Download PDF
+                </Button>
+            </DialogFooter>
+        </>
+    );
+};
 
 
 export function PriceCalculator() {
@@ -353,17 +445,39 @@ export function PriceCalculator() {
           </CardDescription>
         </CardHeader>
         <CardContent className="h-[450px] flex flex-col">
-          {history.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClearHistory}
-              className="mb-4 self-start"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear History
-            </Button>
-          )}
+           <div className="flex justify-between items-center mb-4">
+              {history.length > 0 && (
+                  <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearHistory}
+                      className="self-start"
+                  >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Clear History
+                  </Button>
+              )}
+              {history.length > 0 && (
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="default" size="sm">
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Generate Bill
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-2xl">
+                        <DialogHeader>
+                            <DialogTitle>Final Bill</DialogTitle>
+                            <DialogDescription>
+                                Here is the detailed bill for your calculations. You can print or save it as a PDF.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <BillContent history={history} totalQuantity={totalQuantity} formatCurrency={formatCurrency} />
+                    </DialogContent>
+                </Dialog>
+              )}
+          </div>
+
           <Separator className="mb-4" />
           <ScrollArea className="flex-1 pr-4 -mr-4">
             {history.length === 0 ? (
@@ -410,5 +524,7 @@ export function PriceCalculator() {
     </div>
   );
 }
+
+    
 
     
