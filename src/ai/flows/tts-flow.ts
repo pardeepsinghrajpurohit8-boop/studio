@@ -3,18 +3,13 @@
  * @fileOverview A flow for generating speech from text.
  *
  * - speakPrice - A function that takes text and returns audio data.
- * - SpeakPriceOutput - The return type for the speakPrice function.
  */
 
 import { ai } from '@/ai/genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'genkit';
 import wav from 'wav';
-
-export const SpeakPriceOutputSchema = z.object({
-    media: z.string().describe("The base64 encoded audio data with a data URI."),
-});
-export type SpeakPriceOutput = z.infer<typeof SpeakPriceOutputSchema>;
+import { SpeakPriceOutputSchema, type SpeakPriceOutput } from './tts-flow-types';
 
 
 export async function speakPrice(text: string): Promise<SpeakPriceOutput> {
