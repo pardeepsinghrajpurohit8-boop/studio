@@ -29,7 +29,7 @@ const ttsFlow = ai.defineFlow(
                 responseModalities: ['AUDIO'],
                 speechConfig: {
                     voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'hi-IN-Wavenet-B' }, // Standard Hindi Male Voice
+                        prebuiltVoiceConfig: { voiceName: 'vindemiatrix' },
                     },
                 },
             },

@@ -73,7 +73,7 @@ export function PriceCalculator() {
     if (isSpeaking) return;
     setIsSpeaking(true);
     try {
-        const textToSpeak = `कुल कीमत ${amount.toFixed(2)} रुपये है`;
+        const textToSpeak = `The total price is ${amount.toFixed(2)} dollars`;
         const result = await speakPrice(textToSpeak);
         if (result && result.media) {
             const audioObj = new Audio(result.media);
