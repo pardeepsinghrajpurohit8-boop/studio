@@ -53,6 +53,17 @@ export function PriceCalculator() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    // Load history from localStorage on component mount
+    try {
+      const savedHistory = localStorage.getItem("calcHistory");
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory));
+      }
+    } catch (error) {
+      console.error("Failed to load history from localStorage", error);
+    }
+  }, []);
 
   useEffect(() => {
     const numQuantity = parseFloat(quantity);
@@ -142,7 +153,14 @@ export function PriceCalculator() {
         price: numPrice,
         total: total,
       };
-      setHistory([newCalculation, ...history]);
+      const updatedHistory = [newCalculation, ...history];
+      setHistory(updatedHistory);
+      try {
+        localStorage.setItem("calcHistory", JSON.stringify(updatedHistory));
+      } catch (error) {
+        console.error("Failed to save history to localStorage", error);
+      }
+      
       toast({
         title: "Calculation Saved",
         description: `Saved: ${numQuantity} x ${formatCurrency(numPrice)} = ${formatCurrency(total)}`,
@@ -158,6 +176,11 @@ export function PriceCalculator() {
   
   const handleClearHistory = () => {
     setHistory([]);
+    try {
+      localStorage.removeItem("calcHistory");
+    } catch (error) {
+      console.error("Failed to clear history from localStorage", error);
+    }
     toast({
       title: "History Cleared",
     });
@@ -315,5 +338,3 @@ export function PriceCalculator() {
     </div>
   );
 }
-
-    
