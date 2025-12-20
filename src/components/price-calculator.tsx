@@ -474,10 +474,10 @@ export function PriceCalculator() {
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-2xl">
-                        <DialogHeader>
-                            <DialogTitle>Final Bill</DialogTitle>
+                        <DialogHeader className="text-center">
+                            <DialogTitle className="text-3xl font-bold text-red-600">Mateshwari EXPORTS</DialogTitle>
                             <DialogDescription>
-                                Here is the detailed bill for your calculations. You can print or save it as a PDF.
+                                Mfrs. & Wholesale : All types of Jeans & Cotton Pant
                             </DialogDescription>
                         </DialogHeader>
                         <BillContent history={history} totalQuantity={totalQuantity} formatCurrency={formatCurrency} />
