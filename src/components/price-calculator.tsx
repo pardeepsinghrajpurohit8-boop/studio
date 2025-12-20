@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Calculator, ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader } from "lucide-react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
 
@@ -157,9 +157,9 @@ export function PriceCalculator() {
       <Card className={`w-full lg:max-w-md ${neumorphicCardStyle} rounded-3xl`}>
         <CardHeader className="items-center text-center pt-8">
           <div className={`p-4 ${neumorphicIconContainer}`}>
-             <Calculator className="h-10 w-10 text-primary" />
+             <DollarSign className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="font-headline text-3xl mt-4 text-foreground/90">CalcPrice</CardTitle>
+          <CardTitle className="font-headline text-3xl mt-4 text-foreground/90">Price Calculator</CardTitle>
           <CardDescription className="font-body text-muted-foreground">
             Your futuristic price calculator
           </CardDescription>
