@@ -65,6 +65,31 @@ export function PriceCalculator() {
     }
   }, []);
 
+  const handleSpeak = useCallback(async (amount: number) => {
+    if (isSpeaking) return;
+    setIsSpeaking(true);
+    try {
+        const textToSpeak = `${amount.toFixed(2)} rupees`;
+        const result = await speakPrice(textToSpeak);
+        if (result && result.media) {
+            const audioObj = new Audio(result.media);
+            setAudio(audioObj);
+            audioObj.play();
+            audioObj.onended = () => setIsSpeaking(false);
+        } else {
+            setIsSpeaking(false);
+        }
+    } catch (error) {
+        console.error("Error generating speech:", error);
+        toast({
+            variant: "destructive",
+            title: "Speech Error",
+            description: "Could not generate audio for the price.",
+        });
+        setIsSpeaking(false);
+    }
+  }, [isSpeaking, toast]);
+
   useEffect(() => {
     const numQuantity = parseFloat(quantity);
     const numPrice = parseFloat(price);
@@ -92,32 +117,7 @@ export function PriceCalculator() {
         }
     }
     
-  }, [quantity, price]);
-
-  const handleSpeak = useCallback(async (amount: number) => {
-    if (isSpeaking) return;
-    setIsSpeaking(true);
-    try {
-        const textToSpeak = `${amount.toFixed(2)} rupees`;
-        const result = await speakPrice(textToSpeak);
-        if (result && result.media) {
-            const audioObj = new Audio(result.media);
-            setAudio(audioObj);
-            audioObj.play();
-            audioObj.onended = () => setIsSpeaking(false);
-        } else {
-            setIsSpeaking(false);
-        }
-    } catch (error) {
-        console.error("Error generating speech:", error);
-        toast({
-            variant: "destructive",
-            title: "Speech Error",
-            description: "Could not generate audio for the price.",
-        });
-        setIsSpeaking(false);
-    }
-  }, [isSpeaking, toast]);
+  }, [quantity, price, handleSpeak]);
   
   const replayAudio = () => {
     if (audio) {
@@ -338,3 +338,5 @@ export function PriceCalculator() {
     </div>
   );
 }
+
+    
