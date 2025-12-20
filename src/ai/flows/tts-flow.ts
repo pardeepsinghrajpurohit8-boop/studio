@@ -33,7 +33,7 @@ const ttsFlow = ai.defineFlow(
                     },
                 },
             },
-            prompt: query,
+            prompt: `Read the following amount in a clear, natural voice: ${query}`,
         });
         if (!media) {
             throw new Error('no media returned');

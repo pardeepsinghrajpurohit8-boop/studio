@@ -3,9 +3,10 @@
 
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader } from "lucide-react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
+import { numberToWords } from "@/ai/flows/number-to-words-flow";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Calculation {
   id: string;
@@ -47,11 +49,14 @@ export function PriceCalculator() {
   const [quantity, setQuantity] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
+  const [totalInWords, setTotalInWords] = useState<string>("");
+  const [isConverting, setIsConverting] = useState(false);
   const [history, setHistory] = useState<Calculation[]>([]);
   const { toast } = useToast();
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const wordsDebounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Load history from localStorage on component mount
@@ -90,6 +95,25 @@ export function PriceCalculator() {
     }
   }, [isSpeaking, toast]);
 
+  const convertToWords = useCallback(async (amount: number) => {
+      if(amount <= 0) {
+        setTotalInWords("");
+        return;
+      }
+      setIsConverting(true);
+      try {
+        const result = await numberToWords(amount);
+        if (result && result.words) {
+          setTotalInWords(`${result.words} rupees`);
+        }
+      } catch (error) {
+        console.error("Error converting number to words:", error);
+        setTotalInWords("Could not convert to words.");
+      } finally {
+        setIsConverting(false);
+      }
+  }, []);
+
   useEffect(() => {
     const numQuantity = parseFloat(quantity);
     const numPrice = parseFloat(price);
@@ -101,23 +125,27 @@ export function PriceCalculator() {
     
     setTotal(newTotal);
 
-    if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-    }
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    if (wordsDebounceTimeout.current) clearTimeout(wordsDebounceTimeout.current);
 
     if (newTotal > 0) {
         debounceTimeout.current = setTimeout(() => {
             handleSpeak(newTotal);
-        }, 800); // Wait for 800ms after user stops typing
+        }, 1000); 
+
+        wordsDebounceTimeout.current = setTimeout(() => {
+            convertToWords(newTotal);
+        }, 500);
+    } else {
+        setTotalInWords("");
     }
 
     return () => {
-        if (debounceTimeout.current) {
-            clearTimeout(debounceTimeout.current);
-        }
+        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+        if (wordsDebounceTimeout.current) clearTimeout(wordsDebounceTimeout.current);
     }
     
-  }, [quantity, price, handleSpeak]);
+  }, [quantity, price, handleSpeak, convertToWords]);
   
   const replayAudio = () => {
     if (audio) {
@@ -244,14 +272,28 @@ export function PriceCalculator() {
               />
             </div>
           </div>
-          <div className={`text-center py-6 px-4 ${neumorphicTotalContainer} relative`}>
-            <p className="text-base font-body text-muted-foreground uppercase tracking-widest">Total Price</p>
-            <p 
-              className="text-5xl font-bold font-headline text-primary tracking-tight transition-all duration-300 mt-2"
-              aria-live="polite"
-            >
-              {formatCurrency(total)}
-            </p>
+          <div className={`text-center py-6 px-4 ${neumorphicTotalContainer} relative space-y-2`}>
+            <div>
+              <p className="text-base font-body text-muted-foreground uppercase tracking-widest">Total Price</p>
+              <p 
+                className="text-5xl font-bold font-headline text-primary tracking-tight transition-all duration-300 mt-2"
+                aria-live="polite"
+              >
+                {formatCurrency(total)}
+              </p>
+            </div>
+            <div className="h-8">
+                {total > 0 && (
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                        <Pencil className="h-4 w-4"/>
+                        {isConverting ? (
+                            <Skeleton className="h-4 w-48" />
+                        ) : (
+                            <span className="text-sm capitalize font-medium">{totalInWords || "..."}</span>
+                        )}
+                    </div>
+                )}
+            </div>
             <Button
                 variant="ghost"
                 size="icon"
@@ -338,5 +380,3 @@ export function PriceCalculator() {
     </div>
   );
 }
-
-    
