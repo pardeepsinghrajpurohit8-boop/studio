@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
@@ -51,6 +51,8 @@ export function PriceCalculator() {
   const { toast } = useToast();
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
 
   useEffect(() => {
     const numQuantity = parseFloat(quantity);
@@ -63,8 +65,20 @@ export function PriceCalculator() {
     
     setTotal(newTotal);
 
+    if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+    }
+
     if (newTotal > 0) {
-        handleSpeak(newTotal);
+        debounceTimeout.current = setTimeout(() => {
+            handleSpeak(newTotal);
+        }, 800); // Wait for 800ms after user stops typing
+    }
+
+    return () => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
     }
     
   }, [quantity, price]);
@@ -85,9 +99,14 @@ export function PriceCalculator() {
         }
     } catch (error) {
         console.error("Error generating speech:", error);
+        toast({
+            variant: "destructive",
+            title: "Speech Error",
+            description: "Could not generate audio for the price.",
+        });
         setIsSpeaking(false);
     }
-  }, [isSpeaking]);
+  }, [isSpeaking, toast]);
   
   const replayAudio = () => {
     if (audio) {
@@ -296,3 +315,5 @@ export function PriceCalculator() {
     </div>
   );
 }
+
+    
