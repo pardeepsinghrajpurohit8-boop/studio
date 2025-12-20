@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package } from "lucide-react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
 import { numberToWords } from "@/ai/flows/number-to-words-flow";
@@ -49,6 +49,7 @@ export function PriceCalculator() {
   const [quantity, setQuantity] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
+  const [gst, setGst] = useState<number>(0);
   const [totalInWords, setTotalInWords] = useState<string>("");
   const [isConverting, setIsConverting] = useState(false);
   const [history, setHistory] = useState<Calculation[]>([]);
@@ -129,6 +130,9 @@ export function PriceCalculator() {
     }
     
     setTotal(newTotal);
+
+    const gstValue = (newTotal * 0.5) * 0.025;
+    setGst(gstValue);
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     if (wordsDebounceTimeout.current) clearTimeout(wordsDebounceTimeout.current);
@@ -289,6 +293,12 @@ export function PriceCalculator() {
                 {formatCurrency(total)}
               </p>
             </div>
+             {total > 0 && (
+              <div className="flex items-center justify-center gap-2 pt-2 text-foreground/80">
+                <Percent className="h-4 w-4 text-primary"/>
+                <span className="text-sm font-medium">GST (2.5% of 50%): <strong>{formatCurrency(gst)}</strong></span>
+              </div>
+            )}
             <div className="h-8">
                 {total > 0 && (
                     <div className="flex items-center justify-center gap-2 text-muted-foreground">
@@ -400,3 +410,5 @@ export function PriceCalculator() {
     </div>
   );
 }
+
+    
