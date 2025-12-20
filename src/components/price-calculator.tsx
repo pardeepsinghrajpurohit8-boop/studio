@@ -67,6 +67,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                         body { font-family: sans-serif; }
                         .bill-header { text-align: center; margin-bottom: 2rem; }
                         .bill-title { font-size: 2.5rem; font-weight: bold; margin: 0; }
+                        .bill-subtitle { font-size: 0.8rem; color: #666; margin-top: 4px; }
                         table { width: 100%; border-collapse: collapse; }
                         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
                         th { background-color: #f2f2f2; }
@@ -90,6 +91,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
             <div ref={billRef} className="text-sm">
                  <div className="bill-header">
                     <h1 className="bill-title">MATESHWARI EXPORTS</h1>
+                    <p className="bill-subtitle">Mfrs. & Wholesale : All types of Jeans & Cotton Pant</p>
                 </div>
                 <div className="grid gap-2">
                     <p><strong>Bill Date:</strong> {new Date().toLocaleDateString()}</p>
@@ -530,7 +532,3 @@ export function PriceCalculator() {
     </div>
   );
 }
-
-    
-
-    
