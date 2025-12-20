@@ -73,7 +73,7 @@ export function PriceCalculator() {
     if (isSpeaking) return;
     setIsSpeaking(true);
     try {
-        const textToSpeak = `The total price is ${amount.toFixed(2)} dollars`;
+        const textToSpeak = `The total price is ${amount.toFixed(2)} rupees`;
         const result = await speakPrice(textToSpeak);
         if (result && result.media) {
             const audioObj = new Audio(result.media);
@@ -103,10 +103,10 @@ export function PriceCalculator() {
   };
   
   const formatCurrency = (value: number) => {
-    if(isNaN(value)) return '$0.00';
-    return new Intl.NumberFormat("en-US", {
+    if(isNaN(value)) return '₹0.00';
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);
