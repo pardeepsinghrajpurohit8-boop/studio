@@ -58,25 +58,35 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     const handlePrint = () => {
         const printContent = billRef.current;
         if (printContent) {
-            const printWindow = window.open('', '', 'height=600,width=800');
+            const printWindow = window.open('', '', 'height=800,width=800');
             if (printWindow) {
-                printWindow.document.write('<html><head><title>Bill</title>');
-                // A simple CSS for printing
+                printWindow.document.write('<html><head><title>Bill - MATESHWARI EXPORTS</title>');
                 printWindow.document.write(`
                     <style>
-                        body { font-family: sans-serif; }
+                        @media print {
+                          @page { size: auto; margin: 0.5in; }
+                        }
+                        body { font-family: sans-serif; margin: 20px; }
                         .bill-header { text-align: center; margin-bottom: 2rem; }
                         .bill-title { font-size: 2.5rem; font-weight: bold; margin: 0; color: red; }
-                        .bill-subtitle { font-size: 0.8rem; color: #666; margin-top: 4px; }
-                        table { width: 100%; border-collapse: collapse; }
+                        .bill-subtitle { font-size: 1rem; color: #333; margin-top: 4px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 1rem;}
                         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
                         th { background-color: #f2f2f2; }
                         .text-right { text-align: right; }
                         .font-bold { font-weight: bold; }
-                        .mt-4 { margin-top: 1rem; }
                     </style>
                 `);
                 printWindow.document.write('</head><body>');
+                
+                // Manually add the header to the print window
+                printWindow.document.write(`
+                    <div class="bill-header">
+                        <div class="bill-title">MATESHWARI EXPORTS</div>
+                        <div class="bill-subtitle">Mfrs. & Wholesale : All types of Jeans & Cotton Pant</div>
+                    </div>
+                `);
+
                 printWindow.document.write(printContent.innerHTML);
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
@@ -529,5 +539,3 @@ export function PriceCalculator() {
     </div>
   );
 }
-
-    
