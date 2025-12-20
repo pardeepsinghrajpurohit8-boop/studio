@@ -131,7 +131,7 @@ export function PriceCalculator() {
     
     setTotal(newTotal);
 
-    const gstValue = (newTotal * 0.5) * 0.025;
+    const gstValue = newTotal * 0.025;
     setGst(gstValue);
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
@@ -296,7 +296,7 @@ export function PriceCalculator() {
              {total > 0 && (
               <div className="flex items-center justify-center gap-2 pt-2 text-foreground/80">
                 <Percent className="h-4 w-4 text-primary"/>
-                <span className="text-sm font-medium">GST (2.5% of 50%): <strong>{formatCurrency(gst)}</strong></span>
+                <span className="text-sm font-medium">GST (2.5%): <strong>{formatCurrency(gst)}</strong></span>
               </div>
             )}
             <div className="h-8">
