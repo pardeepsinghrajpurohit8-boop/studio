@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import * as React from "react";
@@ -64,6 +65,8 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                 printWindow.document.write(`
                     <style>
                         body { font-family: sans-serif; }
+                        .bill-header { text-align: center; margin-bottom: 2rem; }
+                        .bill-title { font-size: 2.5rem; font-weight: bold; margin: 0; }
                         table { width: 100%; border-collapse: collapse; }
                         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
                         th { background-color: #f2f2f2; }
@@ -85,6 +88,9 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     return (
         <>
             <div ref={billRef} className="text-sm">
+                 <div className="bill-header">
+                    <h1 className="bill-title">MATESHWARI EXPORTS</h1>
+                </div>
                 <div className="grid gap-2">
                     <p><strong>Bill Date:</strong> {new Date().toLocaleDateString()}</p>
                     <p><strong>Total Items:</strong> {history.length}</p>
