@@ -89,10 +89,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     return (
         <>
             <div ref={billRef} className="text-sm">
-                 <div className="bill-header">
-                    <h1 className="bill-title">MATESHWARI EXPORTS</h1>
-                    <p className="bill-subtitle">Mfrs. & Wholesale : All types of Jeans & Cotton Pant</p>
-                </div>
+                
                 <div className="grid gap-2">
                     <p><strong>Bill Date:</strong> {new Date().toLocaleDateString()}</p>
                     <p><strong>Total Items:</strong> {history.length}</p>
@@ -474,10 +471,10 @@ export function PriceCalculator() {
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-2xl">
-                        <DialogHeader className="text-center">
-                            <DialogTitle className="text-3xl font-bold text-red-600">Mateshwari EXPORTS</DialogTitle>
+                        <DialogHeader>
+                            <DialogTitle>Final Bill</DialogTitle>
                             <DialogDescription>
-                                Mfrs. & Wholesale : All types of Jeans & Cotton Pant
+                                Here is the detailed bill for your calculations. You can print or save it as a PDF.
                             </DialogDescription>
                         </DialogHeader>
                         <BillContent history={history} totalQuantity={totalQuantity} formatCurrency={formatCurrency} />
