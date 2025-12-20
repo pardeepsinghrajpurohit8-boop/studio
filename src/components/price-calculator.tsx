@@ -66,7 +66,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                     <style>
                         body { font-family: sans-serif; }
                         .bill-header { text-align: center; margin-bottom: 2rem; }
-                        .bill-title { font-size: 2.5rem; font-weight: bold; margin: 0; }
+                        .bill-title { font-size: 2.5rem; font-weight: bold; margin: 0; color: red; }
                         .bill-subtitle { font-size: 0.8rem; color: #666; margin-top: 4px; }
                         table { width: 100%; border-collapse: collapse; }
                         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -472,7 +472,7 @@ export function PriceCalculator() {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-2xl">
                         <DialogHeader>
-                            <DialogTitle>Final Bill</DialogTitle>
+                            <DialogTitle className="text-red-500 text-2xl font-bold">MATESHWARI EXPORTS</DialogTitle>
                             <DialogDescription>
                                 Here is the detailed bill for your calculations. You can print or save it as a PDF.
                             </DialogDescription>
@@ -529,3 +529,5 @@ export function PriceCalculator() {
     </div>
   );
 }
+
+    
