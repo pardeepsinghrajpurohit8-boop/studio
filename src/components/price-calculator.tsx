@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil } from "lucide-react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
 import { numberToWords } from "@/ai/flows/number-to-words-flow";
@@ -219,6 +219,8 @@ export function PriceCalculator() {
     });
   }
 
+  const totalQuantity = history.reduce((acc, calc) => acc + (calc.quantity || 0), 0);
+
   // Neumorphic styles
   const darkShadow = "#bebebe";
   const lightShadow = "#ffffff";
@@ -319,10 +321,23 @@ export function PriceCalculator() {
       
       <Card className={`w-full flex-1 ${neumorphicCardStyle} rounded-3xl`}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-headline text-foreground/90">
-            <History className="h-7 w-7 text-primary" />
-            Calculation History
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2 text-2xl font-headline text-foreground/90">
+              <History className="h-7 w-7 text-primary" />
+              Calculation History
+            </CardTitle>
+            {history.length > 0 && (
+              <div className="text-right flex items-center gap-2">
+                 <div className={`p-2 ${neumorphicIconContainer}`}>
+                  <Package className="h-6 w-6 text-primary"/>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Quantity</p>
+                  <p className="text-xl font-bold text-foreground/90">{totalQuantity}</p>
+                </div>
+              </div>
+            )}
+          </div>
           <CardDescription>
             Your saved calculations appear here.
           </CardDescription>
