@@ -74,15 +74,20 @@ export function PriceCalculator() {
     if (isSpeaking) return;
     setIsSpeaking(true);
     try {
-        const textToSpeak = `${amount.toFixed(2)} rupees`;
-        const result = await speakPrice(textToSpeak);
-        if (result && result.media) {
-            const audioObj = new Audio(result.media);
-            setAudio(audioObj);
-            audioObj.play();
-            audioObj.onended = () => setIsSpeaking(false);
+        const result = await numberToWords(amount);
+        if (result && result.words) {
+            const textToSpeak = `${result.words} rupees`;
+            const audioResult = await speakPrice(textToSpeak);
+            if (audioResult && audioResult.media) {
+                const audioObj = new Audio(audioResult.media);
+                setAudio(audioObj);
+                audioObj.play();
+                audioObj.onended = () => setIsSpeaking(false);
+            } else {
+                setIsSpeaking(false);
+            }
         } else {
-            setIsSpeaking(false);
+             setIsSpeaking(false);
         }
     } catch (error) {
         console.error("Error generating speech:", error);
