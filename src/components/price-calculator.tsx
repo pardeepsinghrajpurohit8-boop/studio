@@ -474,7 +474,7 @@ export function PriceCalculator() {
                         <DialogHeader>
                             <DialogTitle className="text-red-500 text-2xl font-bold">MATESHWARI EXPORTS</DialogTitle>
                             <DialogDescription>
-                                Here is the detailed bill for your calculations. You can print or save it as a PDF.
+                                Mfrs. & Wholesale : All types of Jeans & Cotton Pant
                             </DialogDescription>
                         </DialogHeader>
                         <BillContent history={history} totalQuantity={totalQuantity} formatCurrency={formatCurrency} />
