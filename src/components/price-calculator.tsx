@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import * as React from "react";
@@ -129,8 +130,8 @@ ${itemsText}
 -----------------------------------
 *Summary*
 Subtotal: ${formatCurrency(subTotal)}
-CGST (2.5% on 50%): ${formatCurrency(cgstAmount)}
-SGST (2.5% on 50%): ${formatCurrency(sgstAmount)}
+CGST (2.5%): ${formatCurrency(cgstAmount)}
+SGST (2.5%): ${formatCurrency(sgstAmount)}
 *Grand Total: ${formatCurrency(grandTotal)}*
 -----------------------------------
 Cash Payment: ${cashPaid ? formatCurrency(parseFloat(cashPaid)) : 'No Cash Entry'}
@@ -178,11 +179,11 @@ Remaining Balance: ${formatCurrency(remainingBalance)}
                             <TableCell className="text-right font-bold">{formatCurrency(subTotal)}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell colSpan={3} className="text-right font-bold">CGST (2.5% on 50%)</TableCell>
+                            <TableCell colSpan={3} className="text-right font-bold">CGST (2.5%)</TableCell>
                             <TableCell className="text-right font-bold">{formatCurrency(cgstAmount)}</TableCell>
                         </TableRow>
                          <TableRow>
-                            <TableCell colSpan={3} className="text-right font-bold">SGST (2.5% on 50%)</TableCell>
+                            <TableCell colSpan={3} className="text-right font-bold">SGST (2.5%)</TableCell>
                             <TableCell className="text-right font-bold">{formatCurrency(sgstAmount)}</TableCell>
                         </TableRow>
                         <TableRow className="text-lg">
@@ -447,8 +448,8 @@ ${itemsText}
 -----------------------------------
 *Summary*
 Subtotal: ${formatCurrency(subTotal)}
-CGST (2.5% on 50%): ${formatCurrency(cgstAmount)}
-SGST (2.5% on 50%): ${formatCurrency(sgstAmount)}
+CGST (2.5%): ${formatCurrency(cgstAmount)}
+SGST (2.5%): ${formatCurrency(sgstAmount)}
 *Grand Total: ${formatCurrency(grandTotal)}*
     `;
 
@@ -530,12 +531,12 @@ SGST (2.5% on 50%): ${formatCurrency(sgstAmount)}
               <div className="grid grid-cols-2 items-center justify-center gap-x-4 gap-y-1 pt-2 text-foreground/80 text-xs">
                 <div className="flex items-center justify-end gap-1">
                   <Percent className="h-3 w-3 text-primary"/>
-                  <span className="font-medium">CGST (2.5% on 50%):</span>
+                  <span className="font-medium">CGST (2.5%):</span>
                 </div>
                 <strong className="text-left">{formatCurrency(cgst)}</strong>
                 <div className="flex items-center justify-end gap-1">
                    <Percent className="h-3 w-3 text-primary"/>
-                   <span className="font-medium">SGST (2.5% on 50%):</span>
+                   <span className="font-medium">SGST (2.5%):</span>
                 </div>
                  <strong className="text-left">{formatCurrency(sgst)}</strong>
               </div>
