@@ -51,8 +51,10 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     const billRef = useRef<HTMLDivElement>(null);
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
-    const gstAmount = (subTotal / 2) * 0.025;
-    const grandTotal = subTotal + gstAmount;
+    const halfSubTotal = subTotal / 2;
+    const cgstAmount = halfSubTotal * 0.025;
+    const sgstAmount = halfSubTotal * 0.025;
+    const grandTotal = subTotal + cgstAmount + sgstAmount;
 
     const handlePrint = () => {
         const printContent = billRef.current;
@@ -114,7 +116,8 @@ ${itemsText}
 -----------------------------------
 *Summary*
 Subtotal: ${formatCurrency(subTotal)}
-GST (2.5% on 50%): ${formatCurrency(gstAmount)}
+CGST (2.5% on 50%): ${formatCurrency(cgstAmount)}
+SGST (2.5% on 50%): ${formatCurrency(sgstAmount)}
 *Grand Total: ${formatCurrency(grandTotal)}*
         `;
 
@@ -157,8 +160,12 @@ GST (2.5% on 50%): ${formatCurrency(gstAmount)}
                             <TableCell className="text-right font-bold">{formatCurrency(subTotal)}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell colSpan={3} className="text-right font-bold">GST (2.5% on 50%)</TableCell>
-                            <TableCell className="text-right font-bold">{formatCurrency(gstAmount)}</TableCell>
+                            <TableCell colSpan={3} className="text-right font-bold">CGST (2.5% on 50%)</TableCell>
+                            <TableCell className="text-right font-bold">{formatCurrency(cgstAmount)}</TableCell>
+                        </TableRow>
+                         <TableRow>
+                            <TableCell colSpan={3} className="text-right font-bold">SGST (2.5% on 50%)</TableCell>
+                            <TableCell className="text-right font-bold">{formatCurrency(sgstAmount)}</TableCell>
                         </TableRow>
                         <TableRow className="text-lg">
                             <TableCell colSpan={3} className="text-right font-bold">Grand Total</TableCell>
@@ -186,7 +193,8 @@ export function PriceCalculator() {
   const [quantity, setQuantity] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
-  const [gst, setGst] = useState<number>(0);
+  const [cgst, setCgst] = useState<number>(0);
+  const [sgst, setSgst] = useState<number>(0);
   const [totalInWords, setTotalInWords] = useState<string>("");
   const [isConverting, setIsConverting] = useState(false);
   const [history, setHistory] = useState<Calculation[]>([]);
@@ -268,8 +276,11 @@ export function PriceCalculator() {
     
     setTotal(newTotal);
 
-    const gstValue = (newTotal / 2) * 0.025;
-    setGst(gstValue);
+    const halfTotal = newTotal / 2;
+    const cgstValue = halfTotal * 0.025;
+    const sgstValue = halfTotal * 0.025;
+    setCgst(cgstValue);
+    setSgst(sgstValue);
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     if (wordsDebounceTimeout.current) clearTimeout(wordsDebounceTimeout.current);
@@ -371,8 +382,10 @@ export function PriceCalculator() {
     }
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
-    const gstAmount = (subTotal / 2) * 0.025;
-    const grandTotal = subTotal + gstAmount;
+    const halfSubTotal = subTotal / 2;
+    const cgstAmount = halfSubTotal * 0.025;
+    const sgstAmount = halfSubTotal * 0.025;
+    const grandTotal = subTotal + cgstAmount + sgstAmount;
 
     const itemsText = history.map((item, index) => 
         `${index + 1}. Qty: ${item.quantity}, Rate: ${formatCurrency(item.price)}, Total: ${formatCurrency(item.total)}`
@@ -392,7 +405,8 @@ ${itemsText}
 -----------------------------------
 *Summary*
 Subtotal: ${formatCurrency(subTotal)}
-GST (2.5% on 50%): ${formatCurrency(gstAmount)}
+CGST (2.5% on 50%): ${formatCurrency(cgstAmount)}
+SGST (2.5% on 50%): ${formatCurrency(sgstAmount)}
 *Grand Total: ${formatCurrency(grandTotal)}*
     `;
 
@@ -471,12 +485,20 @@ GST (2.5% on 50%): ${formatCurrency(gstAmount)}
               </p>
             </div>
              {total > 0 && (
-              <div className="flex items-center justify-center gap-2 pt-2 text-foreground/80">
-                <Percent className="h-4 w-4 text-primary"/>
-                <span className="text-sm font-medium">GST (2.5% on 50%): <strong>{formatCurrency(gst)}</strong></span>
+              <div className="grid grid-cols-2 items-center justify-center gap-x-4 gap-y-1 pt-2 text-foreground/80 text-xs">
+                <div className="flex items-center justify-end gap-1">
+                  <Percent className="h-3 w-3 text-primary"/>
+                  <span className="font-medium">CGST (2.5% on 50%):</span>
+                </div>
+                <strong className="text-left">{formatCurrency(cgst)}</strong>
+                <div className="flex items-center justify-end gap-1">
+                   <Percent className="h-3 w-3 text-primary"/>
+                   <span className="font-medium">SGST (2.5% on 50%):</span>
+                </div>
+                 <strong className="text-left">{formatCurrency(sgst)}</strong>
               </div>
             )}
-            <div className="h-8">
+            <div className="h-8 pt-2">
                 {total > 0 && (
                     <div className="flex items-center justify-center gap-2 text-muted-foreground">
                         <Pencil className="h-4 w-4"/>
@@ -615,3 +637,5 @@ GST (2.5% on 50%): ${formatCurrency(gstAmount)}
     </div>
   );
 }
+
+    
