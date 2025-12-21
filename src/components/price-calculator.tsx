@@ -49,12 +49,21 @@ const JeansIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calculation[], totalQuantity: number, formatCurrency: (value: number) => string }) => {
     const billRef = useRef<HTMLDivElement>(null);
+    const [cashPaid, setCashPaid] = useState("");
+    const [accountPaid, setAccountPaid] = useState("");
+    const [dues, setDues] = useState("");
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
     const halfSubTotal = subTotal / 2;
     const cgstAmount = halfSubTotal * 0.025;
     const sgstAmount = halfSubTotal * 0.025;
     const grandTotal = subTotal + cgstAmount + sgstAmount;
+
+    const numCashPaid = parseFloat(cashPaid) || 0;
+    const numAccountPaid = parseFloat(accountPaid) || 0;
+    const numDues = parseFloat(dues) || 0;
+    
+    const remainingBalance = grandTotal - numCashPaid - numAccountPaid;
 
     const handlePrint = () => {
         const printContent = billRef.current;
@@ -76,6 +85,10 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                         th { background-color: #f2f2f2; }
                         .text-right { text-align: right; }
                         .font-bold { font-weight: bold; }
+                        .text-green-600 { color: green; }
+                        .text-red-600 { color: red; }
+                        .glow-red { text-shadow: 0 0 5px red; }
+                        .glow-green { text-shadow: 0 0 5px green; }
                     </style>
                 `);
                 printWindow.document.write('</head><body>');
@@ -119,6 +132,11 @@ Subtotal: ${formatCurrency(subTotal)}
 CGST (2.5% on 50%): ${formatCurrency(cgstAmount)}
 SGST (2.5% on 50%): ${formatCurrency(sgstAmount)}
 *Grand Total: ${formatCurrency(grandTotal)}*
+-----------------------------------
+Cash Payment: ${cashPaid ? formatCurrency(parseFloat(cashPaid)) : 'No Cash Entry'}
+Account Transaction: ${accountPaid ? formatCurrency(parseFloat(accountPaid)) : 'No Account Entry'}
+Dues: ${dues ? formatCurrency(parseFloat(dues)) : 'N/A'}
+Remaining Balance: ${formatCurrency(remainingBalance)}
         `;
 
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(billText.trim())}`;
@@ -170,6 +188,30 @@ SGST (2.5% on 50%): ${formatCurrency(sgstAmount)}
                         <TableRow className="text-lg">
                             <TableCell colSpan={3} className="text-right font-bold">Grand Total</TableCell>
                             <TableCell className="text-right font-bold">{formatCurrency(grandTotal)}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                             <TableCell colSpan={3} className="text-right font-bold">Cash Payment</TableCell>
+                             <TableCell className="text-right">
+                                 <Input type="number" placeholder="No Cash Entry" value={cashPaid} onChange={e => setCashPaid(e.target.value)} className="text-right h-8" />
+                             </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell colSpan={3} className="text-right font-bold">Account Transaction</TableCell>
+                            <TableCell className="text-right">
+                                <Input type="number" placeholder="No Account Entry" value={accountPaid} onChange={e => setAccountPaid(e.target.value)} className="text-right h-8" />
+                            </TableCell>
+                        </TableRow>
+                         <TableRow>
+                            <TableCell colSpan={3} className={`text-right font-bold ${numDues > 0 ? 'text-green-600 animate-pulse' : ''}`}>Dues (बाकि)</TableCell>
+                             <TableCell className="text-right">
+                                <Input type="number" placeholder="Enter Dues" value={dues} onChange={e => setDues(e.target.value)} className={`text-right h-8 ${numDues > 0 ? 'text-red-600 font-bold' : ''}`} />
+                             </TableCell>
+                        </TableRow>
+                         <TableRow className="text-lg">
+                            <TableCell colSpan={3} className="text-right font-bold">Remaining Balance</TableCell>
+                             <TableCell className={`text-right font-bold ${remainingBalance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                 {formatCurrency(remainingBalance)}
+                             </TableCell>
                         </TableRow>
                     </TableFooter>
                 </Table>
