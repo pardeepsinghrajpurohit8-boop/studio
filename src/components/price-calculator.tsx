@@ -52,7 +52,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     const billRef = useRef<HTMLDivElement>(null);
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
-    const gstAmount = subTotal * 0.025;
+    const gstAmount = (subTotal * 0.5) * 0.025;
     const grandTotal = subTotal + gstAmount;
 
     const handlePrint = () => {
@@ -131,7 +131,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                             <TableCell className="text-right font-bold">{formatCurrency(subTotal)}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell colSpan={3} className="text-right font-bold">GST (2.5%)</TableCell>
+                            <TableCell colSpan={3} className="text-right font-bold">GST</TableCell>
                             <TableCell className="text-right font-bold">{formatCurrency(gstAmount)}</TableCell>
                         </TableRow>
                         <TableRow className="text-lg">
@@ -238,7 +238,7 @@ export function PriceCalculator() {
     
     setTotal(newTotal);
 
-    const gstValue = newTotal * 0.025;
+    const gstValue = (newTotal * 0.5) * 0.025;
     setGst(gstValue);
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
@@ -403,7 +403,7 @@ export function PriceCalculator() {
              {total > 0 && (
               <div className="flex items-center justify-center gap-2 pt-2 text-foreground/80">
                 <Percent className="h-4 w-4 text-primary"/>
-                <span className="text-sm font-medium">GST (2.5%): <strong>{formatCurrency(gst)}</strong></span>
+                <span className="text-sm font-medium">GST: <strong>{formatCurrency(gst)}</strong></span>
               </div>
             )}
             <div className="h-8">
