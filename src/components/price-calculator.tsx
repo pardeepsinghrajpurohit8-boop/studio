@@ -1,10 +1,9 @@
 
-
 "use client";
 
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent, FileDown, Printer, Share2 } from "lucide-react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent, FileDown, Printer, Share2, Eye } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
 import { numberToWords } from "@/ai/flows/number-to-words-flow";
@@ -52,7 +51,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     const billRef = useRef<HTMLDivElement>(null);
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
-    const gstAmount = (subTotal * 0.5) * 0.025;
+    const gstAmount = subTotal * 0.025;
     const grandTotal = subTotal + gstAmount;
 
     const handlePrint = () => {
@@ -158,7 +157,7 @@ GST: ${formatCurrency(gstAmount)}
                             <TableCell className="text-right font-bold">{formatCurrency(subTotal)}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell colSpan={3} className="text-right font-bold">GST</TableCell>
+                            <TableCell colSpan={3} className="text-right font-bold">GST (2.5%)</TableCell>
                             <TableCell className="text-right font-bold">{formatCurrency(gstAmount)}</TableCell>
                         </TableRow>
                         <TableRow className="text-lg">
@@ -269,7 +268,7 @@ export function PriceCalculator() {
     
     setTotal(newTotal);
 
-    const gstValue = (newTotal * 0.5) * 0.025;
+    const gstValue = newTotal * 0.025;
     setGst(gstValue);
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
@@ -361,6 +360,39 @@ export function PriceCalculator() {
     });
   }
 
+  const handleShareBill = () => {
+    if (history.length === 0) return;
+
+    const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
+    const gstAmount = subTotal * 0.025;
+    const grandTotal = subTotal + gstAmount;
+
+    const itemsText = history.map((item, index) => 
+        `${index + 1}. Qty: ${item.quantity}, Rate: ${formatCurrency(item.price)}, Total: ${formatCurrency(item.total)}`
+    ).join('\n');
+
+    const billText = `
+*MATESHWARI EXPORTS*
+Mfrs. & Wholesale : All types of Jeans & Cotton Pant
+-----------------------------------
+*Bill Details*
+Bill Date: ${new Date().toLocaleDateString()}
+Total Items: ${history.length}
+Total Quantity: ${totalQuantity}
+-----------------------------------
+*Items*
+${itemsText}
+-----------------------------------
+*Summary*
+Subtotal: ${formatCurrency(subTotal)}
+GST: ${formatCurrency(gstAmount)}
+*Grand Total: ${formatCurrency(grandTotal)}*
+    `;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(billText.trim())}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const totalQuantity = history.reduce((acc, calc) => acc + (calc.quantity || 0), 0);
 
   // Neumorphic styles
@@ -434,7 +466,7 @@ export function PriceCalculator() {
              {total > 0 && (
               <div className="flex items-center justify-center gap-2 pt-2 text-foreground/80">
                 <Percent className="h-4 w-4 text-primary"/>
-                <span className="text-sm font-medium">GST: <strong>{formatCurrency(gst)}</strong></span>
+                <span className="text-sm font-medium">GST (2.5%): <strong>{formatCurrency(gst)}</strong></span>
               </div>
             )}
             <div className="h-8">
@@ -504,23 +536,29 @@ export function PriceCalculator() {
                   </Button>
               )}
               {history.length > 0 && (
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="default" size="sm">
-                            <FileDown className="mr-2 h-4 w-4" />
-                            Generate Bill
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-2xl">
-                        <DialogHeader>
-                            <DialogTitle className="text-red-500 text-2xl font-bold">MATESHWARI EXPORTS</DialogTitle>
-                            <DialogDescription>
-                                Mfrs. & Wholesale : All types of Jeans & Cotton Pant
-                            </DialogDescription>
-                        </DialogHeader>
-                        <BillContent history={history} totalQuantity={totalQuantity} formatCurrency={formatCurrency} />
-                    </DialogContent>
-                </Dialog>
+                <div className="flex gap-2">
+                  <Dialog>
+                      <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                              <Eye className="mr-2 h-4 w-4" />
+                              Preview Bill
+                          </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-2xl">
+                          <DialogHeader>
+                              <DialogTitle className="text-red-500 text-2xl font-bold">MATESHWARI EXPORTS</DialogTitle>
+                              <DialogDescription>
+                                  Mfrs. & Wholesale : All types of Jeans & Cotton Pant
+                              </DialogDescription>
+                          </DialogHeader>
+                          <BillContent history={history} totalQuantity={totalQuantity} formatCurrency={formatCurrency} />
+                      </DialogContent>
+                  </Dialog>
+                  <Button onClick={handleShareBill} size="sm">
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Share Bill on WhatsApp
+                  </Button>
+                </div>
               )}
           </div>
 
@@ -570,3 +608,5 @@ export function PriceCalculator() {
     </div>
   );
 }
+
+    
