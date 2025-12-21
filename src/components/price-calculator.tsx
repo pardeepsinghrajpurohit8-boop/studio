@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent, FileDown, Printer } from "lucide-react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent, FileDown, Printer, Share2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { speakPrice } from "@/ai/flows/tts-flow";
 import { numberToWords } from "@/ai/flows/number-to-words-flow";
@@ -95,6 +95,33 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
             }
         }
     };
+    
+    const handleShareOnWhatsApp = () => {
+        const itemsText = history.map((item, index) => 
+            `${index + 1}. Qty: ${item.quantity}, Rate: ${formatCurrency(item.price)}, Total: ${formatCurrency(item.total)}`
+        ).join('\n');
+
+        const billText = `
+*MATESHWARI EXPORTS*
+Mfrs. & Wholesale : All types of Jeans & Cotton Pant
+-----------------------------------
+*Bill Details*
+Bill Date: ${new Date().toLocaleDateString()}
+Total Items: ${history.length}
+Total Quantity: ${totalQuantity}
+-----------------------------------
+*Items*
+${itemsText}
+-----------------------------------
+*Summary*
+Subtotal: ${formatCurrency(subTotal)}
+GST: ${formatCurrency(gstAmount)}
+*Grand Total: ${formatCurrency(grandTotal)}*
+        `;
+
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(billText.trim())}`;
+        window.open(whatsappUrl, '_blank');
+    };
 
     return (
         <>
@@ -141,10 +168,14 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                     </TableFooter>
                 </Table>
             </div>
-            <DialogFooter className="mt-6">
+            <DialogFooter className="mt-6 flex-col sm:flex-row gap-2">
                 <Button onClick={handlePrint} className="w-full sm:w-auto">
                     <Printer className="mr-2 h-4 w-4" />
                     Print / Download PDF
+                </Button>
+                 <Button onClick={handleShareOnWhatsApp} className="w-full sm:w-auto" variant="secondary">
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share on WhatsApp
                 </Button>
             </DialogFooter>
         </>
