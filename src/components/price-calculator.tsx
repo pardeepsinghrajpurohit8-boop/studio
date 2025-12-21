@@ -6,8 +6,6 @@ import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent, Share2, Printer, Eye } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { speakPrice } from "@/ai/flows/tts-flow";
-import { numberToWords } from "@/ai/flows/number-to-words-flow";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -238,15 +236,9 @@ export function PriceCalculator() {
   const [total, setTotal] = useState<number>(0);
   const [cgst, setCgst] = useState<number>(0);
   const [sgst, setSgst] = useState<number>(0);
-  const [totalInWords, setTotalInWords] = useState<string>("");
-  const [isConverting, setIsConverting] = useState(false);
   const [history, setHistory] = useState<Calculation[]>([]);
   const { toast } = useToast();
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const wordsDebounceTimeout = useRef<NodeJS.Timeout | null>(null);
-
+  
   useEffect(() => {
     // Load history from localStorage on component mount
     try {
@@ -259,54 +251,6 @@ export function PriceCalculator() {
     }
   }, []);
 
-  const handleSpeak = useCallback(async (amount: number) => {
-    if (isSpeaking) return;
-    setIsSpeaking(true);
-    try {
-        const result = await numberToWords(amount);
-        if (result && result.words) {
-            const textToSpeak = `${result.words} rupees`;
-            const audioResult = await speakPrice(textToSpeak);
-            if (audioResult && audioResult.media) {
-                const audioObj = new Audio(audioResult.media);
-                setAudio(audioObj);
-                audioObj.play();
-                audioObj.onended = () => setIsSpeaking(false);
-            } else {
-                setIsSpeaking(false);
-            }
-        } else {
-             setIsSpeaking(false);
-        }
-    } catch (error) {
-        console.error("Error generating speech:", error);
-        toast({
-            variant: "destructive",
-            title: "Speech Error",
-            description: "Could not generate audio for the price.",
-        });
-        setIsSpeaking(false);
-    }
-  }, [isSpeaking, toast]);
-
-  const convertToWords = useCallback(async (amount: number) => {
-      if(amount <= 0) {
-        setTotalInWords("");
-        return;
-      }
-      setIsConverting(true);
-      try {
-        const result = await numberToWords(amount);
-        if (result && result.words) {
-          setTotalInWords(`${result.words} rupees`);
-        }
-      } catch (error) {
-        console.error("Error converting number to words:", error);
-        setTotalInWords("Could not convert to words.");
-      } finally {
-        setIsConverting(false);
-      }
-  }, []);
 
   useEffect(() => {
     const numQuantity = parseFloat(quantity);
@@ -324,37 +268,9 @@ export function PriceCalculator() {
     const sgstValue = halfTotal * 0.025;
     setCgst(cgstValue);
     setSgst(sgstValue);
-
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    if (wordsDebounceTimeout.current) clearTimeout(wordsDebounceTimeout.current);
-
-    if (newTotal > 0) {
-        debounceTimeout.current = setTimeout(() => {
-            handleSpeak(newTotal);
-        }, 1000); 
-
-        wordsDebounceTimeout.current = setTimeout(() => {
-            convertToWords(newTotal);
-        }, 500);
-    } else {
-        setTotalInWords("");
-    }
-
-    return () => {
-        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-        if (wordsDebounceTimeout.current) clearTimeout(wordsDebounceTimeout.current);
-    }
     
-  }, [quantity, price, handleSpeak, convertToWords]);
+  }, [quantity, price]);
   
-  const replayAudio = () => {
-    if (audio) {
-      audio.play();
-    } else if (total > 0) {
-      handleSpeak(total);
-    }
-  };
-
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.select();
@@ -542,27 +458,7 @@ SGST (2.5%): ${formatCurrency(sgstAmount)}
               </div>
             )}
             <div className="h-8 pt-2">
-                {total > 0 && (
-                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                        <Pencil className="h-4 w-4"/>
-                        {isConverting ? (
-                            <Skeleton className="h-4 w-48" />
-                        ) : (
-                            <span className="text-sm capitalize font-medium">{totalInWords || "..."}</span>
-                        )}
-                    </div>
-                )}
             </div>
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={replayAudio}
-                className="absolute top-2 right-2 text-muted-foreground hover:text-primary"
-                aria-label="Repeat price"
-                disabled={isSpeaking || total === 0}
-            >
-                {isSpeaking ? <Loader className="animate-spin" /> : <Volume2 />}
-            </Button>
           </div>
           <Button onClick={handleSave} size="lg" className="w-full h-14 text-lg font-bold">
             <Save className="mr-2 h-5 w-5"/>
@@ -680,7 +576,3 @@ SGST (2.5%): ${formatCurrency(sgstAmount)}
     </div>
   );
 }
-
-    
-
-    
