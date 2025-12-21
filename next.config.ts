@@ -1,35 +1,24 @@
-import type {NextConfig} from 'next';
+
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
-};
+  output: "export",
+    
+      // 1. अगर टाइपिंग की गलती हो, तो भी बिल्ड न रोकें
+        typescript: {
+            ignoreBuildErrors: true,
+              },
+                
+                  // 2. अगर कोड में सफाई (Linting) की कमी हो, तो भी न रोकें
+                    eslint: {
+                        ignoreDuringBuilds: true,
+                          },
 
-export default nextConfig;
+                            // 3. इमेज एरर रोकने के लिए
+                              images: {
+                                  unoptimized: true,
+                                    },
+                                    };
+
+                                    export default nextConfig;
+                                    
