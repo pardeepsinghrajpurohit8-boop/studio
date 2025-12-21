@@ -3,8 +3,8 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { ShoppingCart, DollarSign, Save, Trash2, History, Volume2, Loader, Pencil, Package, Percent, Share2, Printer, Eye } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ShoppingCart, DollarSign, Save, Trash2, History, Package, Percent, Share2, Printer, Eye } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -53,14 +52,12 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     const [dues, setDues] = useState("");
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
-    const halfSubTotal = subTotal / 2;
-    const cgstAmount = halfSubTotal * 0.025;
-    const sgstAmount = halfSubTotal * 0.025;
+    const cgstAmount = subTotal * 0.025;
+    const sgstAmount = subTotal * 0.025;
     const grandTotal = subTotal + cgstAmount + sgstAmount;
 
     const numCashPaid = parseFloat(cashPaid) || 0;
     const numAccountPaid = parseFloat(accountPaid) || 0;
-    const numDues = parseFloat(dues) || 0;
     
     const remainingBalance = grandTotal - numCashPaid - numAccountPaid;
 
@@ -86,13 +83,10 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                         .font-bold { font-weight: bold; }
                         .text-green-600 { color: green; }
                         .text-red-600 { color: red; }
-                        .glow-red { text-shadow: 0 0 5px red; }
-                        .glow-green { text-shadow: 0 0 5px green; }
                     </style>
                 `);
                 printWindow.document.write('</head><body>');
                 
-                // Manually add the header to the print window
                 printWindow.document.write(`
                     <div class="bill-header">
                         <div class="bill-title">MATESHWARI EXPORTS</div>
@@ -112,7 +106,7 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     const handleShareOnWhatsApp = () => {
         const itemsText = history.map((item, index) => 
             `${index + 1}. Qty: ${item.quantity}, Rate: ${formatCurrency(item.price)}, Total: ${formatCurrency(item.total)}`
-        ).join('\n');
+        ).join('\\n');
 
         const billText = `
 *MATESHWARI EXPORTS*
@@ -201,9 +195,9 @@ Remaining Balance: ${formatCurrency(remainingBalance)}
                             </TableCell>
                         </TableRow>
                          <TableRow>
-                            <TableCell colSpan={3} className={`text-right font-bold ${numDues > 0 ? 'text-green-600 animate-pulse' : ''}`}>Dues (बाकि)</TableCell>
+                            <TableCell colSpan={3} className="text-right font-bold text-green-600">Dues (बाकि)</TableCell>
                              <TableCell className="text-right">
-                                <Input type="number" placeholder="Enter Dues" value={dues} onChange={e => setDues(e.target.value)} className={`text-right h-8 ${numDues > 0 ? 'text-red-600 font-bold' : ''}`} />
+                                <Input type="number" placeholder="Enter Dues" value={dues} onChange={e => setDues(e.target.value)} className="text-right h-8 text-red-600 font-bold" />
                              </TableCell>
                         </TableRow>
                          <TableRow className="text-lg">
@@ -263,9 +257,8 @@ export function PriceCalculator() {
     
     setTotal(newTotal);
 
-    const halfTotal = newTotal / 2;
-    const cgstValue = halfTotal * 0.025;
-    const sgstValue = halfTotal * 0.025;
+    const cgstValue = newTotal * 0.025;
+    const sgstValue = newTotal * 0.025;
     setCgst(cgstValue);
     setSgst(sgstValue);
     
@@ -341,14 +334,13 @@ export function PriceCalculator() {
     }
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
-    const halfSubTotal = subTotal / 2;
-    const cgstAmount = halfSubTotal * 0.025;
-    const sgstAmount = halfSubTotal * 0.025;
+    const cgstAmount = subTotal * 0.025;
+    const sgstAmount = subTotal * 0.025;
     const grandTotal = subTotal + cgstAmount + sgstAmount;
 
     const itemsText = history.map((item, index) => 
         `${index + 1}. Qty: ${item.quantity}, Rate: ${formatCurrency(item.price)}, Total: ${formatCurrency(item.total)}`
-    ).join('\n');
+    ).join('\\n');
 
     const billText = `
 *MATESHWARI EXPORTS*
@@ -543,7 +535,7 @@ SGST (2.5%): ${formatCurrency(sgstAmount)}
             ) : (
               <ul className="space-y-4">
                 <AnimatePresence>
-                  {history.map((calc, index) => (
+                  {history.map((calc) => (
                     <motion.li
                       key={calc.id}
                       layout
