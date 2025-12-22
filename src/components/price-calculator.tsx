@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import * as React from "react";
@@ -50,6 +49,10 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
     const [cashPaid, setCashPaid] = useState("");
     const [accountPaid, setAccountPaid] = useState("");
     const [dues, setDues] = useState("");
+    const [partyName, setPartyName] = useState("");
+    const [partyPhone, setPartyPhone] = useState("");
+    const [gstNumber, setGstNumber] = useState("");
+    const [aadharNumber, setAadharNumber] = useState("");
 
     const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
     const cgstAmount = subTotal * 0.025;
@@ -83,6 +86,8 @@ const BillContent = ({ history, totalQuantity, formatCurrency }: { history: Calc
                         .font-bold { font-weight: bold; }
                         .text-green-600 { color: green; }
                         .text-red-600 { color: red; }
+                        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+                        .party-details, .bill-details { display: flex; flex-direction: column; gap: 0.5rem; }
                     </style>
                 `);
                 printWindow.document.write('</head><body>');
@@ -116,6 +121,10 @@ Mfrs. & Wholesale : All types of Jeans & Cotton Pant
 Bill Date: ${new Date().toLocaleDateString()}
 Total Items: ${history.length}
 Total Quantity: ${totalQuantity}
+${partyName ? `Party Name: ${partyName}` : ''}
+${partyPhone ? `Party Phone: ${partyPhone}` : ''}
+${gstNumber ? `GST No: ${gstNumber}` : ''}
+${aadharNumber ? `Aadhar No: ${aadharNumber}` : ''}
 -----------------------------------
 *Items*
 ${itemsText}
@@ -140,11 +149,20 @@ Remaining Balance: ${formatCurrency(remainingBalance)}
         <>
             <div ref={billRef} className="text-sm">
                 
-                <div className="grid gap-2">
-                    <p><strong>Bill Date:</strong> {new Date().toLocaleDateString()}</p>
-                    <p><strong>Total Items:</strong> {history.length}</p>
-                    <p><strong>Total Quantity:</strong> {totalQuantity}</p>
+                <div className="grid grid-cols-2 gap-8 mb-4">
+                    <div className="grid gap-2">
+                         <p><strong>Bill Date:</strong> {new Date().toLocaleDateString()}</p>
+                         <p><strong>Total Items:</strong> {history.length}</p>
+                         <p><strong>Total Quantity:</strong> {totalQuantity}</p>
+                    </div>
+                     <div className="grid gap-2">
+                        <Input type="text" placeholder="Party Name" value={partyName} onChange={e => setPartyName(e.target.value)} className="h-8 text-sm" />
+                        <Input type="text" placeholder="Party Phone Number" value={partyPhone} onChange={e => setPartyPhone(e.target.value)} className="h-8 text-sm" />
+                        <Input type="text" placeholder="GST Number" value={gstNumber} onChange={e => setGstNumber(e.target.value)} className="h-8 text-sm" />
+                        <Input type="text" placeholder="Aadhar Number" value={aadharNumber} onChange={e => setAadharNumber(e.target.value)} className="h-8 text-sm" />
+                    </div>
                 </div>
+
                 <Separator className="my-4" />
                 <Table>
                     <TableHeader>
@@ -195,7 +213,7 @@ Remaining Balance: ${formatCurrency(remainingBalance)}
                             </TableCell>
                         </TableRow>
                          <TableRow>
-                            <TableCell colSpan={3} className="text-right font-bold text-green-600">Dues (बाकि)</TableCell>
+                            <TableCell colSpan={3} className="text-right font-bold text-red-600">Dues (बाकि)</TableCell>
                              <TableCell className="text-right">
                                 <Input type="number" placeholder="Enter Dues" value={dues} onChange={e => setDues(e.target.value)} className="text-right h-8 text-red-600 font-bold" />
                              </TableCell>
@@ -568,3 +586,5 @@ SGST (2.5%): ${formatCurrency(sgstAmount)}
     </div>
   );
 }
+
+    
