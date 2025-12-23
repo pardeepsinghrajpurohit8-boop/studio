@@ -540,5 +540,3 @@ export function PriceCalculator() {
     </div>
   );
 }
-
-    
