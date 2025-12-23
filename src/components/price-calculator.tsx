@@ -341,48 +341,6 @@ export function PriceCalculator() {
     });
   }
 
-  const handleShareBill = () => {
-    if (history.length === 0) {
-        toast({
-            variant: "destructive",
-            title: "Cannot Share Bill",
-            description: "There are no calculations in the history to share.",
-        });
-        return;
-    }
-
-    const subTotal = history.reduce((acc, calc) => acc + calc.total, 0);
-    const cgstAmount = subTotal * 0.025;
-    const sgstAmount = subTotal * 0.025;
-    const grandTotal = subTotal + cgstAmount + sgstAmount;
-
-    const itemsText = history.map((item, index) => 
-        `${index + 1}. Qty: ${item.quantity}, Rate: ${formatCurrency(item.price)}, Total: ${formatCurrency(item.total)}`
-    ).join('\\n');
-
-    const billText = `
-*MATESHWARI EXPORTS*
-Mfrs. & Wholesale : All types of Jeans & Cotton Pant
------------------------------------
-*Bill Details*
-Bill Date: ${new Date().toLocaleDateString()}
-Total Items: ${history.length}
-Total Quantity: ${totalQuantity}
------------------------------------
-*Items*
-${itemsText}
------------------------------------
-*Summary*
-Subtotal: ${formatCurrency(subTotal)}
-CGST (2.5%): ${formatCurrency(cgstAmount)}
-SGST (2.5%): ${formatCurrency(sgstAmount)}
-*Grand Total: ${formatCurrency(grandTotal)}*
-    `;
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(billText.trim())}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
   const totalQuantity = history.reduce((acc, calc) => acc + (calc.quantity || 0), 0);
 
   // Neumorphic styles
@@ -532,10 +490,6 @@ SGST (2.5%): ${formatCurrency(sgstAmount)}
                           <BillContent history={history} totalQuantity={totalQuantity} formatCurrency={formatCurrency} />
                       </DialogContent>
                   </Dialog>
-                  <Button onClick={handleShareBill} size="sm">
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share Bill on WhatsApp
-                  </Button>
                 </div>
               )}
           </div>
