@@ -1,6 +1,7 @@
 {
       "name": "CalcPrice App",
         "short_name": "CalcPrice",
+        "description": "Best billing app for shopkeepers",
           "theme_color": "#000000",
             "background_color": "#ffffff",
               "display": "standalone",
